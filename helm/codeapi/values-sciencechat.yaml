@@ -1,4 +1,6 @@
-# ScienceChat production starting point.
+# ScienceChat restricted evaluation profile for clusters without /dev/kvm.
+# Direct NsJail shares the Kubernetes node kernel: do not grant ordinary users
+# Run Code access or represent this as the hardened microVM production profile.
 # Replace the image tag and every REPLACE_* secret before installation.
 pythonRuntimeVersion: "3.12.12"
 executionProfile: default
@@ -19,7 +21,7 @@ executionManifest:
   ttlSeconds: 300
 
 api:
-  replicaCount: 2
+  replicaCount: 1
   image:
     repository: ghcr.io/janosbabik/sciencechat-codeapi-api
     tag: sciencechat-v0.1.0
@@ -46,18 +48,31 @@ api:
           key: public-key
 
 workerSandbox:
-  replicaCount: 2
+  # Restrict this direct-NsJail evaluation deployment to approved users only.
+  replicaCount: 1
   workerImage:
     repository: ghcr.io/janosbabik/sciencechat-codeapi-worker
     tag: sciencechat-v0.1.0
     pullPolicy: IfNotPresent
   sandboxImage:
-    repository: ghcr.io/janosbabik/sciencechat-codeapi-sandbox
+    repository: ghcr.io/janosbabik/sciencechat-codeapi-sandbox-nsjail
     tag: sciencechat-v0.1.0
     pullPolicy: IfNotPresent
-  kvmEnabled: true
+  kvmEnabled: false
   packages:
-    source: image
+    # Direct NsJail cannot use the baked microVM package root. The matching
+    # package-init image prepares this read-only persistent package tree.
+    source: pvc
+    persistence:
+      enabled: true
+      size: 20Gi
+    initJob:
+      enabled: true
+      image:
+        repository: ghcr.io/janosbabik/sciencechat-codeapi-package-init
+        tag: sciencechat-v0.1.0
+        pullPolicy: IfNotPresent
+      pythonVersion: "3.12.12"
   config:
     pythonConcurrency: 1
     otherConcurrency: 2
@@ -70,7 +85,8 @@ workerSandbox:
     compileTimeout: 10000
     outputMaxSize: 1048576
     disableNetworking: true
-    maxConcurrentJobs: 2
+    # One untrusted-code execution at a time while evaluating NsJail isolation.
+    maxConcurrentJobs: 1
   resources:
     requests:
       cpu: "1000m"
