@@ -2,143 +2,143 @@
 # Direct NsJail shares the Kubernetes node kernel: do not grant ordinary users
 # Run Code access or represent this as the hardened microVM production profile.
 # Replace the image tag and every REPLACE_* secret before installation.
-pythonRuntimeVersion: "3.12.12"
+pythonRuntimeVersion: '3.12.12'
 executionProfile: default
 hardenedSandboxMode: true
 
 internalServiceAuth:
-  token: REPLACE_WITH_32_BYTE_INTERNAL_SERVICE_TOKEN
+    token: REPLACE_WITH_32_BYTE_INTERNAL_SERVICE_TOKEN
 
 egressGrant:
-  secret: REPLACE_WITH_32_BYTE_EGRESS_GRANT_SECRET
-  ttlSeconds: 1800
-  ledgerRequired: true
-  ledgerTtlGraceSeconds: 300
+    secret: REPLACE_WITH_32_BYTE_EGRESS_GRANT_SECRET
+    ttlSeconds: 1800
+    ledgerRequired: true
+    ledgerTtlGraceSeconds: 300
 
 executionManifest:
-  privateKey: REPLACE_WITH_BASE64_DER_ED25519_PRIVATE_KEY
-  publicKey: REPLACE_WITH_BASE64_DER_ED25519_PUBLIC_KEY
-  ttlSeconds: 300
+    privateKey: REPLACE_WITH_BASE64_DER_ED25519_PRIVATE_KEY
+    publicKey: REPLACE_WITH_BASE64_DER_ED25519_PUBLIC_KEY
+    ttlSeconds: 300
 
 api:
-  replicaCount: 1
-  image:
-    repository: ghcr.io/janosbabik/sciencechat-codeapi-api
-    tag: sciencechat-v0.1.0
-    pullPolicy: IfNotPresent
-  extraEnv:
-    - name: LOCAL_MODE
-      value: "false"
-    - name: CODEAPI_AUTH_PROVIDER
-      value: librechat-jwt
-    - name: CODEAPI_JWT_ISSUER
-      value: librechat
-    - name: CODEAPI_JWT_AUDIENCE
-      value: codeapi
-    - name: CODEAPI_JWT_ALLOWED_ALGS
-      value: EdDSA
-    - name: CODEAPI_JWT_KID
-      value: sciencechat-codeapi-v1
-    - name: CODEAPI_JWT_SINGLE_TENANT_ID
-      value: legacy
-    - name: CODEAPI_JWT_PUBLIC_KEY
-      valueFrom:
-        secretKeyRef:
-          name: sciencechat-codeapi-jwt
-          key: public-key
+    replicaCount: 1
+    image:
+        repository: ghcr.io/janosbabik/sciencechat-codeapi-api
+        tag: sciencechat-v0.2.0
+        pullPolicy: IfNotPresent
+    extraEnv:
+        - name: LOCAL_MODE
+          value: 'false'
+        - name: CODEAPI_AUTH_PROVIDER
+          value: librechat-jwt
+        - name: CODEAPI_JWT_ISSUER
+          value: librechat
+        - name: CODEAPI_JWT_AUDIENCE
+          value: codeapi
+        - name: CODEAPI_JWT_ALLOWED_ALGS
+          value: EdDSA
+        - name: CODEAPI_JWT_KID
+          value: sciencechat-codeapi-v1
+        - name: CODEAPI_JWT_SINGLE_TENANT_ID
+          value: legacy
+        - name: CODEAPI_JWT_PUBLIC_KEY
+          valueFrom:
+              secretKeyRef:
+                  name: sciencechat-codeapi-jwt
+                  key: public-key
 
 workerSandbox:
-  # Restrict this direct-NsJail evaluation deployment to approved users only.
-  replicaCount: 1
-  workerImage:
-    repository: ghcr.io/janosbabik/sciencechat-codeapi-worker
-    tag: sciencechat-v0.1.0
-    pullPolicy: IfNotPresent
-  sandboxImage:
-    repository: ghcr.io/janosbabik/sciencechat-codeapi-sandbox-nsjail
-    tag: sciencechat-v0.1.0
-    pullPolicy: IfNotPresent
-  kvmEnabled: false
-  packages:
-    # Direct NsJail cannot use the baked microVM package root. The matching
-    # package-init image prepares this read-only persistent package tree.
-    source: pvc
-    persistence:
-      enabled: true
-      size: 20Gi
-    initJob:
-      enabled: true
-      image:
-        repository: ghcr.io/janosbabik/sciencechat-codeapi-package-init
-        tag: sciencechat-v0.1.0
+    # Restrict this direct-NsJail evaluation deployment to approved users only.
+    replicaCount: 1
+    workerImage:
+        repository: ghcr.io/janosbabik/sciencechat-codeapi-worker
+        tag: sciencechat-v0.2.0
         pullPolicy: IfNotPresent
-      pythonVersion: "3.12.12"
-  config:
-    pythonConcurrency: 1
-    otherConcurrency: 2
-    jobWindow: 1000
-    jobTimeout: 300000
-  sandbox:
-    runCpuTime: 300000
-    runTimeout: 300000
-    compileCpuTime: 10000
-    compileTimeout: 10000
-    outputMaxSize: 1048576
-    disableNetworking: true
-    # One untrusted-code execution at a time while evaluating NsJail isolation.
-    maxConcurrentJobs: 1
-  resources:
-    requests:
-      cpu: "1000m"
-      memory: 2Gi
-    limits:
-      cpu: "4000m"
-      memory: 6Gi
+    sandboxImage:
+        repository: ghcr.io/janosbabik/sciencechat-codeapi-sandbox-nsjail
+        tag: sciencechat-v0.2.0
+        pullPolicy: IfNotPresent
+    kvmEnabled: false
+    packages:
+        # Direct NsJail cannot use the baked microVM package root. The matching
+        # package-init image prepares this read-only persistent package tree.
+        source: pvc
+        persistence:
+            enabled: true
+            size: 20Gi
+        initJob:
+            enabled: true
+            image:
+                repository: ghcr.io/janosbabik/sciencechat-codeapi-package-init
+                tag: sciencechat-v0.2.0
+                pullPolicy: IfNotPresent
+            pythonVersion: '3.12.12'
+    config:
+        pythonConcurrency: 1
+        otherConcurrency: 2
+        jobWindow: 1000
+        jobTimeout: 300000
+    sandbox:
+        runCpuTime: 300000
+        runTimeout: 300000
+        compileCpuTime: 10000
+        compileTimeout: 10000
+        outputMaxSize: 1048576
+        disableNetworking: true
+        # One untrusted-code execution at a time while evaluating NsJail isolation.
+        maxConcurrentJobs: 1
+    resources:
+        requests:
+            cpu: '1000m'
+            memory: 2Gi
+        limits:
+            cpu: '4000m'
+            memory: 6Gi
 
 toolCallServer:
-  image:
-    repository: ghcr.io/janosbabik/sciencechat-codeapi-tool-call-server
-    tag: sciencechat-v0.1.0
-    pullPolicy: IfNotPresent
-  config:
-    requestTimeout: 300000
-    sessionExpiry: 600
+    image:
+        repository: ghcr.io/janosbabik/sciencechat-codeapi-tool-call-server
+        tag: sciencechat-v0.2.0
+        pullPolicy: IfNotPresent
+    config:
+        requestTimeout: 300000
+        sessionExpiry: 600
 
 fileServer:
-  image:
-    repository: ghcr.io/janosbabik/sciencechat-codeapi-file-server
-    tag: sciencechat-v0.1.0
-    pullPolicy: IfNotPresent
+    image:
+        repository: ghcr.io/janosbabik/sciencechat-codeapi-file-server
+        tag: sciencechat-v0.2.0
+        pullPolicy: IfNotPresent
 
 egressGateway:
-  image:
-    repository: ghcr.io/janosbabik/sciencechat-codeapi-egress-gateway
-    tag: sciencechat-v0.1.0
-    pullPolicy: IfNotPresent
+    image:
+        repository: ghcr.io/janosbabik/sciencechat-codeapi-egress-gateway
+        tag: sciencechat-v0.2.0
+        pullPolicy: IfNotPresent
 
 redis:
-  enabled: true
-  architecture: standalone
-  auth:
     enabled: true
-    password: REPLACE_WITH_REDIS_PASSWORD
-  master:
-    persistence:
-      enabled: true
-      size: 2Gi
+    architecture: standalone
+    auth:
+        enabled: true
+        password: REPLACE_WITH_REDIS_PASSWORD
+    master:
+        persistence:
+            enabled: true
+            size: 2Gi
 
 minio:
-  enabled: true
-  mode: standalone
-  auth:
-    rootUser: sciencechat-codeapi
-    rootPassword: REPLACE_WITH_MINIO_PASSWORD
-  persistence:
     enabled: true
-    size: 20Gi
-  defaultBuckets: codeapi-files
+    mode: standalone
+    auth:
+        rootUser: sciencechat-codeapi
+        rootPassword: REPLACE_WITH_MINIO_PASSWORD
+    persistence:
+        enabled: true
+        size: 20Gi
+    defaultBuckets: codeapi-files
 
 networkPolicy:
-  enabled: true
-  toolCallServer:
-    allowExternalEgress: false
+    enabled: true
+    toolCallServer:
+        allowExternalEgress: false
