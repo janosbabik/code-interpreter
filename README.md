@@ -47,10 +47,12 @@ Mantid, McStas, refl1d, and molecular-dynamics runtimes are intentionally not in
 the default image because they require a separate application/runtime or
 conflict with the pinned SANS stack.
 
-The `ScienceChat images` workflow publishes the API, worker, baked sandbox,
-file-server, tool-call-server, and egress-gateway images to GHCR for
-`sciencechat-v*` tags. The sandbox image is built for `linux/amd64` with Python
-3.12.12. Deploy all images from the same tag or immutable digest.
+The `ScienceChat images` workflow publishes the API, worker, baked microVM
+sandbox, direct-NsJail sandbox, package-init, file-server, tool-call-server,
+and egress-gateway images to GHCR for `sciencechat-v*` tags. Both sandbox
+images are built for `linux/amd64` with Python 3.12.12. The NsJail image is for
+restricted evaluation only and requires the matching package-init image and
+PVC package delivery. Deploy all images from the same tag or immutable digest.
 
 ## Architecture
 

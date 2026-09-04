@@ -31,9 +31,22 @@ jobs:
             file: service/Dockerfile.worker
             target: production
             build_args: ''
+          # Hardened libkrun/microVM image. Requires a KVM-capable node and
+          # packages.source=image in the Helm release.
           - name: sandbox
             file: api/Dockerfile
             target: sandbox-runner-baked
+            build_args: PYTHON_VERSION=3.12.12
+          # Evaluation-only direct NsJail image for clusters without /dev/kvm.
+          # It shares the Kubernetes node kernel and requires the matching
+          # package-init image plus packages.source=pvc.
+          - name: sandbox-nsjail
+            file: api/Dockerfile
+            target: sandbox-runner
+            build_args: PYTHON_VERSION=3.12.12
+          - name: package-init
+            file: docker/Dockerfile.package-init
+            target: ''
             build_args: PYTHON_VERSION=3.12.12
           - name: file-server
             file: service/Dockerfile
