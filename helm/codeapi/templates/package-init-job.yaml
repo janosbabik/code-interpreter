@@ -43,7 +43,7 @@ spec:
           imagePullPolicy: {{ .Values.workerSandbox.packages.initJob.image.pullPolicy }}
           env:
             - name: PYTHON_VERSION
-              value: {{ .Values.workerSandbox.packages.initJob.pythonVersion | quote }}
+              value: {{ .Values.workerSandbox.packages.initJob.pythonVersion | default .Values.pythonRuntimeVersion | quote }}
             - name: NODE_VERSION
               value: {{ .Values.workerSandbox.packages.initJob.nodeVersion | quote }}
             - name: BUN_VERSION

@@ -84,6 +84,8 @@ spec:
               value: {{ .Values.api.service.port | quote }}
             - name: CODEAPI_HTTP_JSON_LIMIT
               value: {{ .Values.api.httpJsonLimit | quote }}
+            - name: CODEAPI_PYTHON_VERSION
+              value: {{ .Values.pythonRuntimeVersion | quote }}
             {{- with .Values.api.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}

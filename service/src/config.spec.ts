@@ -4,6 +4,7 @@ import {
   jobDeadlineAtMs,
   languageConfig,
   lambdaMicrovmNumericConfigError,
+  resolvePythonRuntimeVersion,
   resolveEgressGrantTtlSeconds,
   resolveLanguage,
   resolveLambdaMicrovmNumericConfig,
@@ -59,12 +60,18 @@ describe('node language configuration', () => {
 });
 
 describe('runtime version configuration', () => {
-  it('maps Python requests to Python 3.14.4', () => {
+  it('defaults Python requests to Python 3.14.4', () => {
     expect(languageConfig[Languages.py]).toMatchObject({
       language: 'python',
       version: '3.14.4',
       fileName: 'main.py',
     });
+  });
+
+  it('accepts a configured Python runtime version', () => {
+    expect(resolvePythonRuntimeVersion('3.12.12')).toBe('3.12.12');
+    expect(resolvePythonRuntimeVersion(' 3.12.12 ')).toBe('3.12.12');
+    expect(resolvePythonRuntimeVersion('')).toBe('3.14.4');
   });
 
   it('maps Bun JavaScript and TypeScript requests to Bun 1.3.14', () => {

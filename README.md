@@ -18,6 +18,40 @@ Code Interpreter (internally `codeapi`, the prefix used by its env vars, images,
 - **Remote Code Bridge** - Lets an operator-owned VM connect outbound and serve
   as a fenced, stateful sandbox through the `@librechat/code` worker
 
+## ScienceChat scientific runtime
+
+This fork adds a reproducible scientific Python layer for the ScienceChat SANS
+workbench:
+
+- the runtime Python version is configurable with `CODEAPI_PYTHON_VERSION`;
+- production Helm defaults to Python 3.12.12;
+- `python-packages-extra.txt` pins SANS, Scipp/NeXus, reflectometry,
+  diffraction/imaging, spectroscopy, crystallography, units, and inference
+  packages selected for the ESS instrument suite;
+- built-in sasmodels CPU kernels are precompiled in single and double precision
+  during package/image construction;
+- the final sandbox remains compiler-free and keeps writable workspaces
+  no-exec.
+
+Only built-in sasmodels kernels are supported. User-supplied models that need a
+new native kernel cannot be compiled at runtime. Static plots should prefer
+matplotlib; Plotly HTML works without a browser, while Kaleido static export
+requires a separately reviewed browser dependency.
+
+The package groups reflect the techniques listed at
+<https://ess.eu/instruments>: diffraction and imaging, large-scale structures
+(SANS, reflectometry, and macromolecular diffraction), and spectroscopy. See
+[ScienceChat neutron-scattering Python environment](docs/sciencechat-python-environment.md)
+for the package inventory, scope, and exclusions.
+Mantid, McStas, refl1d, and molecular-dynamics runtimes are intentionally not in
+the default image because they require a separate application/runtime or
+conflict with the pinned SANS stack.
+
+The `ScienceChat images` workflow publishes the API, worker, baked sandbox,
+file-server, tool-call-server, and egress-gateway images to GHCR for
+`sciencechat-v*` tags. The sandbox image is built for `linux/amd64` with Python
+3.12.12. Deploy all images from the same tag or immutable digest.
+
 ## Architecture
 
 1. LibreChat sends a code execution request to the **API**

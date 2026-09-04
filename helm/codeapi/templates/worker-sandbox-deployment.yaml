@@ -178,6 +178,8 @@ spec:
               value: {{ .Values.executionManifest.ttlSeconds | quote }}
             - name: EGRESS_GRANT_TTL_SECONDS
               value: {{ .Values.egressGrant.ttlSeconds | quote }}
+            - name: CODEAPI_PYTHON_VERSION
+              value: {{ .Values.pythonRuntimeVersion | quote }}
             - name: PYTHON_CONCURRENCY
               value: {{ .Values.workerSandbox.config.pythonConcurrency | quote }}
             - name: OTHER_CONCURRENCY

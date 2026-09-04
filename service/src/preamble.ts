@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import type * as t from './types';
-import { planLimits } from './config';
+import { planLimits, PYTHON_RUNTIME_VERSION } from './config';
 import { generateBashReplayPreamble, generateBashReplayPostamble } from './preamble-bash';
 import {
   PTC_HISTORY_FILENAME,
@@ -804,7 +804,7 @@ export function createProgrammaticPayload(options: CreateProgrammaticPayloadOpti
     run_memory_limit,
     run_timeout,
     language: 'python',
-    version: '3.14.4',
+    version: PYTHON_RUNTIME_VERSION,
     ...(mode === 'blocking' ? { tool_call_socket: true } : {}),
     files: [
       {

@@ -28,6 +28,10 @@ hardenedSandboxMode: true
 # `stateful` selects isolated BullMQ queues.
 executionProfile: ""
 
+# Python runtime requested by the API/worker and installed in the sandbox.
+# ScienceChat images are built with the same version.
+pythonRuntimeVersion: "3.12.12"
+
 otel:
   enabled: false
   # OTLP/HTTP collector endpoint, e.g. "http://opentelemetry-collector.observability:4318".
@@ -299,7 +303,8 @@ workerSandbox:
         repository: codeapi-package-init
         tag: latest
         pullPolicy: IfNotPresent
-      pythonVersion: "3.14.4"
+      # Empty inherits the chart-wide pythonRuntimeVersion.
+      pythonVersion: ""
       nodeVersion: "24.15.0"
       bunVersion: "1.3.14"
       bashPackageVersion: "5.2.0"

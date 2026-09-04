@@ -25,6 +25,8 @@ BUN_VERSION="${BUN_VERSION:-1.3.14}"
 BASH_PACKAGE_VERSION="${BASH_PACKAGE_VERSION:-5.2.0}"
 INSTALL_FAILED=false
 JS_PACKAGE_MANIFEST="${JS_PACKAGE_MANIFEST:-${SCRIPT_DIR}/javascript-packages.txt}"
+PYTHON_EXTRA_PACKAGES_FILE="${PYTHON_EXTRA_PACKAGES_FILE:-/python-packages-extra.txt}"
+SASMODELS_PRECOMPILE_SCRIPT="${SASMODELS_PRECOMPILE_SCRIPT:-/precompile-sasmodels.py}"
 
 load_js_packages() {
     if [ ! -f "$JS_PACKAGE_MANIFEST" ]; then
@@ -93,6 +95,14 @@ packages_ready() {
     [ -d "/pkgs/python/${PYTHON_VERSION}/lib/python${PYTHON_SITE_VERSION}/site-packages/chdb" ] &&
     [ -d "/pkgs/python/${PYTHON_VERSION}/lib/python${PYTHON_SITE_VERSION}/site-packages/statsmodels" ] &&
     [ -d "/pkgs/python/${PYTHON_VERSION}/lib/python${PYTHON_SITE_VERSION}/site-packages/rasterio" ] &&
+    [ -d "/pkgs/python/${PYTHON_VERSION}/lib/python${PYTHON_SITE_VERSION}/site-packages/sans_fitter" ] &&
+    [ -d "/pkgs/python/${PYTHON_VERSION}/lib/python${PYTHON_SITE_VERSION}/site-packages/scipp" ] &&
+    [ -d "/pkgs/python/${PYTHON_VERSION}/lib/python${PYTHON_SITE_VERSION}/site-packages/refnx" ] &&
+    [ -d "/pkgs/python/${PYTHON_VERSION}/lib/python${PYTHON_SITE_VERSION}/site-packages/diffpy" ] &&
+    [ -d "/pkgs/python/${PYTHON_VERSION}/lib/python${PYTHON_SITE_VERSION}/site-packages/euphonic" ] &&
+    [ -d "/pkgs/python/${PYTHON_VERSION}/lib/python${PYTHON_SITE_VERSION}/site-packages/pyFAI" ] &&
+    find "/pkgs/python/${PYTHON_VERSION}/lib/python${PYTHON_SITE_VERSION}/site-packages/compiled_models" -name 'sas32_*.so' -print -quit | grep -q . &&
+    find "/pkgs/python/${PYTHON_VERSION}/lib/python${PYTHON_SITE_VERSION}/site-packages/compiled_models" -name 'sas64_*.so' -print -quit | grep -q . &&
     [ -f "/pkgs/node/${NODE_VERSION}/.package-installed" ] &&
     js_packages_ready "/pkgs/node/${NODE_VERSION}" &&
     [ -f "/pkgs/bun/${BUN_VERSION}/.package-installed" ] &&
@@ -243,6 +253,23 @@ if [ -f "$PIP_PATH" ]; then
         INSTALL_FAILED=true
     else
         PYTHON_PACKAGES_INSTALLED=true
+    fi
+
+    if [ "$PYTHON_PACKAGES_INSTALLED" = true ] && [ ! -s "$PYTHON_EXTRA_PACKAGES_FILE" ]; then
+        echo "ERROR: Extra Python package manifest is missing or empty: $PYTHON_EXTRA_PACKAGES_FILE"
+        PYTHON_PACKAGES_INSTALLED=false
+    fi
+    if [ "$PYTHON_PACKAGES_INSTALLED" = true ]; then
+        echo "Installing extra Python packages from $PYTHON_EXTRA_PACKAGES_FILE"
+        if ! "${PYTHON_INSTALL_CMD[@]}" -r "$PYTHON_EXTRA_PACKAGES_FILE"; then
+            echo "ERROR: Extra Python package installation failed"
+            PYTHON_PACKAGES_INSTALLED=false
+        elif [ -f "$SASMODELS_PRECOMPILE_SCRIPT" ]; then
+            if ! "$PKG_DEST/bin/python3" "$SASMODELS_PRECOMPILE_SCRIPT"; then
+                echo "ERROR: sasmodels kernel precompilation failed"
+                PYTHON_PACKAGES_INSTALLED=false
+            fi
+        fi
     fi
 
     "$PIP_PATH" install --upgrade six 2>/dev/null || true

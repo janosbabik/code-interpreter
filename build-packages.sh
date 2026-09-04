@@ -31,6 +31,8 @@ NODE_VERSION="${NODE_VERSION:-24.15.0}"
 BUN_VERSION="${BUN_VERSION:-1.3.14}"
 PACKAGES_DIR="./data/pkgs"
 JS_PACKAGE_MANIFEST="${JS_PACKAGE_MANIFEST:-${SCRIPT_DIR}/javascript-packages.txt}"
+PYTHON_EXTRA_PACKAGES_FILE="${PYTHON_EXTRA_PACKAGES_FILE:-${SCRIPT_DIR}/python-packages-extra.txt}"
+SASMODELS_PRECOMPILE_SCRIPT="${SASMODELS_PRECOMPILE_SCRIPT:-${SCRIPT_DIR}/docker/precompile-sasmodels.py}"
 
 load_js_packages() {
     if [ ! -f "$JS_PACKAGE_MANIFEST" ]; then
@@ -222,6 +224,20 @@ install_python_packages() {
     else
         echo "ERROR: Python package installation failed"
         return 1
+    fi
+
+    if [ "$python_packages_installed" = true ] && [ -s "$PYTHON_EXTRA_PACKAGES_FILE" ]; then
+        echo "Installing extra Python packages from $PYTHON_EXTRA_PACKAGES_FILE"
+        if ! docker exec "$CONTAINER_NAME" "$pip_path" install -r /python-packages-extra.txt; then
+            echo "ERROR: Extra Python package installation failed"
+            return 1
+        fi
+        if ! docker exec "$CONTAINER_NAME" \
+            "/pkgs/python/${PYTHON_VERSION}/bin/python3" \
+            /precompile-sasmodels.py; then
+            echo "ERROR: sasmodels kernel precompilation failed"
+            return 1
+        fi
     fi
 
     docker exec "$CONTAINER_NAME" "$pip_path" install --upgrade six 2>/dev/null || true
@@ -505,6 +521,8 @@ main() {
     echo "Starting builder container..."
     docker run \
         -v "$PWD/data/pkgs:/pkgs" \
+        -v "$PYTHON_EXTRA_PACKAGES_FILE:/python-packages-extra.txt:ro" \
+        -v "$SASMODELS_PRECOMPILE_SCRIPT:/precompile-sasmodels.py:ro" \
         -dit \
         --name "$CONTAINER_NAME" \
         buildpack-deps:bookworm >/dev/null

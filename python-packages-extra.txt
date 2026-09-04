@@ -1,0 +1,58 @@
+# ScienceChat scientific runtime for ESS neutron-scattering workflows.
+# Keep these pins aligned with image-level smoke tests before every release.
+
+# SANS and sasmodels
+sans-fitter==0.3.0
+bumps==1.0.3
+sasmodels==1.1.0
+sasdata==0.12.2
+kaleido==1.4.0
+
+# ESS-oriented neutron data and NeXus/HDF5
+scipp==26.8.0
+scippnexus==26.1.1
+scippneutron==26.9.0
+nexusformat==2.0.3
+h5py==3.16.0
+hdf5plugin==7.1.0
+periodictable==2.1.0
+NCrystal==4.4.6
+
+# Units, uncertainty, fitting, and posterior analysis
+pint==0.25.3
+uncertainties==3.2.3
+lmfit==1.3.4
+emcee==3.1.6
+arviz==1.3.0
+corner==2.3.0
+iminuit==2.32.0
+dynesty==3.1.0
+
+# Larger labeled and chunked datasets
+xarray==2026.7.0
+dask[array]==2026.8.0
+zarr==3.3.0
+numcodecs==0.16.5
+
+# Reflectometry
+orsopy==1.2.3
+refnx==0.1.67
+# refl1d 1.0.1 requires bumps 1.0.4, while the pinned SANS stack uses 1.0.3.
+# Keep refl1d in a separate technique image until those stacks align.
+
+# Diffraction, imaging, and crystallography
+gemmi==0.7.5
+diffpy.structure==3.5.0
+diffpy.srfit==3.3.1
+pyFAI==2026.5.0
+fabio==2026.6.0
+silx==3.1.2
+spglib==2.7.0
+ase==3.29.0
+biopython==1.88
+
+# Spectroscopy and lattice dynamics
+euphonic==2.1.0
+phonopy==4.4.0
+# dynasor currently pulls an MDAnalysis build that requires libgomp in the
+# minimal sandbox rootfs. Keep it in a separate molecular-dynamics image.

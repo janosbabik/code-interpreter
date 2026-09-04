@@ -154,6 +154,12 @@ For development only, `LOCAL_MODE=true` bypasses authentication — see
 **TLS to Redis.** Set `REDIS_TLS=true` via `extraEnv` on each component when
 your Redis (e.g. a managed cache) requires TLS.
 
+**Python runtime.** `pythonRuntimeVersion` must match the Python package tree
+baked into the sandbox image. ScienceChat defaults this to `3.12.12`; the API
+and worker receive the same value through `CODEAPI_PYTHON_VERSION`. If the
+version changes, rebuild the sandbox image and rerun the scientific smoke tests
+before deployment.
+
 **Package delivery.** KVM deployments default to
 `workerSandbox.packages.source=image`. Build and publish the baked runner target
 under the existing `workerSandbox.sandboxImage` repository and tag:
@@ -161,6 +167,7 @@ under the existing `workerSandbox.sandboxImage` repository and tag:
 ```bash
 docker build \
   --target sandbox-runner-baked \
+  --build-arg PYTHON_VERSION=3.12.12 \
   -t codeapi-sandbox-runner:latest \
   -f api/Dockerfile .
 ```
@@ -168,15 +175,46 @@ docker build \
 That image boots the guest and its `/pkgs` tree from a read-only ext4 block
 image. It intentionally does not expose `/host-packages` through virtio-fs,
 which prevents package imports from pinning host-side launcher file
-descriptors. Set `workerSandbox.packages.source=pvc` only for compatibility with
-runtime package rebuilds; Kubernetes will then use the FD-aware liveness probe
-to recycle the runner before descriptor exhaustion.
+descriptors. The ScienceChat package build installs the pinned requirements in
+`python-packages-extra.txt` and precompiles built-in sasmodels CPU kernels; no
+compiler is included in the final sandbox. Set
+`workerSandbox.packages.source=pvc` only for compatibility with runtime package
+rebuilds; Kubernetes will then use the FD-aware liveness probe to recycle the
+runner before descriptor exhaustion.
 
 When upgrading from chart 0.2.x, rebuild the configured `sandboxImage` from the
 baked target before enabling the 0.3.x default. To keep an existing
 directory-root image during migration, set
 `workerSandbox.packages.source=pvc`; the established image repository/tag
 override remains unchanged in either mode.
+
+## ScienceChat deployment
+
+`values-sciencechat.yaml` is a hardened production starting point using the
+images published by `.github/workflows/sciencechat-images.yml`. Before use:
+
+1. replace `sciencechat-v0.1.0` with the immutable release tag or digest built
+   from the fork;
+2. replace every `REPLACE_*` value through a protected values source rather
+   than committing real secrets;
+3. create the `sciencechat-codeapi-jwt` Secret containing the public verifier
+   key as `public-key`;
+4. ensure the selected nodes expose `/dev/kvm` and satisfy the chart's KVM
+   scheduling requirements;
+5. keep the API internal and configure LibreChat to reach its ClusterIP service.
+
+Install it as a separate release, preferably in a dedicated namespace:
+
+```bash
+helm dependency update helm/codeapi
+helm upgrade --install codeapi helm/codeapi \
+  --namespace code-interpreter \
+  --create-namespace \
+  -f helm/codeapi/values-sciencechat.yaml
+```
+
+The private JWT signing key belongs only in LibreChat. Code Interpreter receives
+only the matching public key.
 
 ## Quick Start (Local Development)
 

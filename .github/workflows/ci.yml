@@ -34,6 +34,9 @@ jobs:
       - name: Sandbox-runner liveness checks
         run: tests/sandbox_runner_healthcheck.sh
 
+      - name: ScienceChat Python runtime checks
+        run: tests/sciencechat_python_runtime.sh
+
       - name: Bridge pairing rollout safety
         run: tests/bridge_pairing_rollout.sh
 
@@ -41,6 +44,29 @@ jobs:
         run: |
           docker buildx build --check -f api/Dockerfile .
           docker buildx build --check -f docker/Dockerfile.worker-sandbox .
+
+  sciencechat-python-runtime-build:
+    name: ScienceChat Python Runtime (amd64)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7 # v6
+
+      - name: Build pinned Python 3.12 package tree
+        run: |
+          docker build \
+            --target package-builder \
+            --build-arg PYTHON_VERSION=3.12.12 \
+            --tag sciencechat-codeapi-package-builder:test \
+            --file api/Dockerfile \
+            .
+
+      - name: Exercise sans-fitter and precompiled kernels
+        run: |
+          docker run --rm \
+            --volume "$PWD/tests/sciencechat_runtime_smoke.py:/tmp/sciencechat_runtime_smoke.py:ro" \
+            sciencechat-codeapi-package-builder:test \
+            /pkgs/python/3.12.12/bin/python3 /tmp/sciencechat_runtime_smoke.py
 
   api-unit-tests:
     name: API Unit Tests

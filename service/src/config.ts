@@ -8,11 +8,20 @@ import {
   resolveExecutionProfileSource,
 } from './execution-profile';
 
+export const DEFAULT_PYTHON_RUNTIME_VERSION = '3.14.4';
+
+export function resolvePythonRuntimeVersion(value = process.env.CODEAPI_PYTHON_VERSION): string {
+  const normalized = value?.trim();
+  return normalized || DEFAULT_PYTHON_RUNTIME_VERSION;
+}
+
+export const PYTHON_RUNTIME_VERSION = resolvePythonRuntimeVersion();
+
 export const languageConfig: Record<Languages | string, t.LanguageConfig | undefined> = {
   [Languages.bash]: { language: 'bash', version: '5.2.0', fileName: 'script.sh' },
   [Languages.js]: { language: 'bun-js', version: '1.3.14', fileName: 'index.js' },
   [Languages.node]: { language: 'node', version: '24.15.0', fileName: 'index.js' },
-  [Languages.py]: { language: 'python', version: '3.14.4', fileName: 'main.py' },
+  [Languages.py]: { language: 'python', version: PYTHON_RUNTIME_VERSION, fileName: 'main.py' },
   [Languages.ts]: { language: 'bun-ts', version: '1.3.14', fileName: 'main.ts' },
 };
 
