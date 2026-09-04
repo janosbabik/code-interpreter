@@ -21,6 +21,24 @@ The package selection follows the technique groups published at
 - `nexusformat`, `h5py`, `hdf5plugin`
 - `periodictable`, `NCrystal`
 
+### ESS instrument reduction packages
+
+- `essreduce` common workflow infrastructure
+- `esssans` for LOKI and SKADI
+- `essdiffraction` for BEER and DREAM
+- `essimaging` for ODIN and related imaging workflows
+- `essnmx` for NMX
+- `essreflectometry` for ESTIA and FREIA
+- `essspectroscopy` for inelastic spectroscopy workflows
+- `esspolarization`, required by the reflectometry stack
+
+These distributions expose modules below the `ess` namespace, for example
+`ess.sans`, `ess.diffraction`, and `ess.reflectometry`. Importability does not
+make an instrument workflow self-contained: users must provide the relevant
+raw NeXus, calibration, geometry, normalization, and metadata inputs. Examples
+or reference files normally fetched from the network are unavailable unless
+explicitly baked into the image or uploaded through LibreChat.
+
 ### SANS
 
 - `sans-fitter`, `sasmodels`, `sasdata`, `bumps`

@@ -12,6 +12,14 @@ kaleido==1.4.0
 scipp==26.8.0
 scippnexus==26.1.1
 scippneutron==26.9.0
+essreduce==26.8.0
+esssans==26.6.0
+essdiffraction==26.8.1
+essimaging==26.9.0
+essnmx==26.6.0
+essreflectometry==26.6.0
+essspectroscopy==26.7.0
+esspolarization==25.10.0
 nexusformat==2.0.3
 h5py==3.16.0
 hdf5plugin==7.1.0
@@ -47,7 +55,8 @@ diffpy.srfit==3.3.1
 pyFAI==2026.5.0
 fabio==2026.6.0
 silx==3.1.2
-spglib==2.7.0
+# essdiffraction excludes spglib 2.7; 2.6 remains compatible with phonopy.
+spglib==2.6.0
 ase==3.29.0
 biopython==1.88
 

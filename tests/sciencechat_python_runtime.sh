@@ -13,6 +13,13 @@ for requirement in \
   'scipp==26.8.0' \
   'scippnexus==26.1.1' \
   'scippneutron==26.9.0' \
+  'essreduce==26.8.0' \
+  'esssans==26.6.0' \
+  'essdiffraction==26.8.1' \
+  'essimaging==26.9.0' \
+  'essnmx==26.6.0' \
+  'essreflectometry==26.6.0' \
+  'essspectroscopy==26.7.0' \
   'orsopy==1.2.3' \
   'refnx==0.1.67' \
   'diffpy.srfit==3.3.1' \
