@@ -18,9 +18,15 @@ metadata:
     {{- include "codeapi.labels" . | nindent 4 }}
     app.kubernetes.io/component: package-init
   annotations:
+    {{- if .Values.workerSandbox.packages.initJob.useHelmHooks }}
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-weight": "-5"
     "helm.sh/hook-delete-policy": before-hook-creation
+    {{- else }}
+    # Argo waits for a Job in this wave to complete before applying workloads
+    # in later waves. The PVC is a normal resource in wave -10.
+    "argocd.argoproj.io/sync-wave": "-5"
+    {{- end }}
 spec:
   backoffLimit: {{ .Values.workerSandbox.packages.initJob.backoffLimit }}
   {{- if .Values.workerSandbox.packages.initJob.ttlSecondsAfterFinished }}

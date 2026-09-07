@@ -21,11 +21,17 @@ metadata:
     {{- include "codeapi.labels" . | nindent 4 }}
   {{- if .Values.workerSandbox.packages.initJob.enabled }}
   annotations:
-    # Create PVC before the init job runs (lower weight = runs first)
+    {{- if .Values.workerSandbox.packages.initJob.useHelmHooks }}
+    # Helm CLI: create the PVC before the initializer hook runs and preserve
+    # the populated package tree across upgrades.
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-weight": "-10"
-    # Keep the PVC across upgrades (don't delete)
     "helm.sh/resource-policy": keep
+    {{- else }}
+    # Argo CD: do not make a persistent PVC a Helm hook. Argo deletes/replaces
+    # hooks before execution, which leaves the sandbox runner unschedulable.
+    "argocd.argoproj.io/sync-wave": "-10"
+    {{- end }}
   {{- end }}
 spec:
   accessModes:

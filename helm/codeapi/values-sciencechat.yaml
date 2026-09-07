@@ -83,6 +83,9 @@ workerSandbox:
             size: 20Gi
         initJob:
             enabled: true
+            # Argo CD sync waves preserve initialization order without
+            # treating the persistent PVC itself as a delete/recreate hook.
+            useHelmHooks: false
             image:
                 repository: ghcr.io/janosbabik/sciencechat-codeapi-package-init
                 tag: sciencechat-v0.2.1

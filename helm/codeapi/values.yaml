@@ -312,6 +312,10 @@ workerSandbox:
         repository: codeapi-package-init
         tag: latest
         pullPolicy: IfNotPresent
+      # Use Helm pre-install/pre-upgrade hooks by default. Set false for an
+      # Argo CD application: it instead renders the PVC and Job as normal
+      # resources ordered by Argo sync waves, avoiding hook PVC deletion.
+      useHelmHooks: true
       # Empty inherits the chart-wide pythonRuntimeVersion.
       pythonVersion: ""
       nodeVersion: "24.15.0"
