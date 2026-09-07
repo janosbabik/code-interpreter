@@ -521,6 +521,10 @@ metrics:
 # =============================================================================
 networkPolicy:
   enabled: true
+  # NodeLocal DNSCache addresses from /etc/resolv.conf. The base CoreDNS
+  # pod-selector rule remains below; add a /32 here when pods use a NodeLocal
+  # DNS listener, which cannot be selected as a regular CoreDNS pod.
+  nodeLocalDnsCIDRs: []
   otel:
     enabled: true
     port: 4318

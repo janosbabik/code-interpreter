@@ -288,3 +288,33 @@ spec:
           port: 80
     {{- end }}
 {{- end }}
+{{- if .Values.networkPolicy.nodeLocalDnsCIDRs }}
+---
+# NodeLocal DNSCache commonly listens on a host-network link-local IP, so it
+# cannot be matched by the CoreDNS pod selector used in the component policies
+# above. NetworkPolicy egress rules are additive; this allows DNS only, from
+# CodeAPI control-plane and sandbox-runner pods, to explicitly configured IPs.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "codeapi.fullname" . }}-node-local-dns
+  labels:
+    {{- include "codeapi.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "codeapi.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  policyTypes: [Egress]
+  egress:
+    {{- range .Values.networkPolicy.nodeLocalDnsCIDRs }}
+    - to:
+        - ipBlock:
+            cidr: {{ . | quote }}
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    {{- end }}
+{{- end }}

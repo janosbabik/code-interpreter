@@ -172,5 +172,9 @@ minio:
 
 networkPolicy:
     enabled: true
+    # The cluster's /etc/resolv.conf points at its NodeLocal DNSCache rather
+    # than directly at CoreDNS. Permit DNS only to that resolver address.
+    nodeLocalDnsCIDRs:
+        - 169.254.25.10/32
     toolCallServer:
         allowExternalEgress: false
