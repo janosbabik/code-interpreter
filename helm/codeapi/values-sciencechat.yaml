@@ -113,10 +113,12 @@ workerSandbox:
         maxConcurrentJobs: 1
     resources:
         requests:
-            cpu: '1000m'
+            # Use Kubernetes' canonical whole-core representation to avoid
+            # persistent Argo drift (1000m is serialized by the API as 1).
+            cpu: '1'
             memory: 2Gi
         limits:
-            cpu: '4000m'
+            cpu: '4'
             memory: 6Gi
 
 toolCallServer:
