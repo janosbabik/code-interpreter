@@ -76,7 +76,7 @@ workerSandbox:
         pullPolicy: IfNotPresent
     sandboxImage:
         repository: ghcr.io/janosbabik/sciencechat-codeapi-sandbox-nsjail
-        tag: sciencechat-v0.2.1
+        tag: sciencechat-v0.2.2
         pullPolicy: IfNotPresent
     kvmEnabled: false
     packages:
