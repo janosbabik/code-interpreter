@@ -102,7 +102,7 @@ fallback between profiles and no automatic workspace or file migration.
 
 Two modes are supported:
 
-- **NsJail mode** (`kvmEnabled: false`): Direct NsJail sandboxing with Linux namespaces and cgroups
+- **NsJail mode** (`kvmEnabled: false`): Direct NsJail sandboxing with Linux namespaces and cgroups. Its runner requires `SYS_ADMIN` and unconfined Seccomp/AppArmor to establish its private mount namespace; it shares the node kernel and is evaluation-only.
 - **MicroVM mode** (`kvmEnabled: true`): libkrun microVM with its own kernel, NsJail runs inside the guest
 
 ## Remote stateful environments

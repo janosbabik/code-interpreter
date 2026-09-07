@@ -167,8 +167,10 @@ workerSandbox:
   # which must be pre-installed on every node at
   # /var/lib/kubelet/seccomp/profiles/nsjail.json - see seccomp/README.md
   # for the DaemonSet installer pattern. When disabled, KVM-mode pods use
-  # RuntimeDefault (still safer than no profile) and non-KVM-mode pods use
-  # Unconfined (forced by NsJail's pivot_root requirement).
+  # RuntimeDefault (still safer than no profile) and direct-NsJail pods use
+  # Unconfined. Direct NsJail also requires an unconfined AppArmor profile to
+  # create a private mount namespace; this is another reason it is evaluation
+  # only and must not be offered to general users.
   seccomp:
     enabled: false
 
