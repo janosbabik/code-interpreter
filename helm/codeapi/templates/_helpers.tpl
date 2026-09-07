@@ -208,8 +208,19 @@ that explicitly need Redis.
 MinIO endpoint - either from subchart, simple deployment, or external
 */}}
 {{- define "codeapi.minio.endpoint" -}}
-{{- if or .Values.minio.enabled .Values.minio.useSimple }}
+{{- if .Values.minio.useSimple }}
 {{- printf "%s-minio" (include "codeapi.fullname" .) }}
+{{- else if .Values.minio.enabled }}
+{{- if .Values.minio.fullnameOverride }}
+{{- .Values.minio.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- $name := default "minio" .Values.minio.nameOverride }}
+{{- if contains $name .Release.Name }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
 {{- else }}
 {{- .Values.minio.external.endpoint }}
 {{- end }}
