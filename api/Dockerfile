@@ -93,6 +93,7 @@ RUN apt-get update && \
     libprotobuf32 \
     libffi8 \
     ca-certificates \
+    curl \
     && rm -rf /var/lib/apt/lists/* \
     && libffi=$(find /usr/lib -name 'libffi.so.8' -print -quit) \
     && { [ -n "$libffi" ] || { echo "libffi.so.8 not found" >&2; exit 1; }; } \
@@ -152,7 +153,13 @@ RUN rm -f /usr/bin/nsenter /usr/bin/unshare /usr/bin/chroot /usr/sbin/chroot \
 
 COPY api/src/entrypoint.sh ./entrypoint.sh
 COPY api/src/hosted-app-launcher.sh /usr/local/bin/codeapi-hosted-app-launcher
-RUN chmod +x ./entrypoint.sh /usr/local/bin/codeapi-hosted-app-launcher
+# Direct NsJail chroots into this stage, so Kubernetes exec probes resolve
+# binaries from here rather than from the outer launcher image.
+COPY docker/sandbox-runner-healthcheck.sh /usr/local/bin/sandbox-runner-healthcheck.sh
+RUN chmod +x \
+    ./entrypoint.sh \
+    /usr/local/bin/codeapi-hosted-app-launcher \
+    /usr/local/bin/sandbox-runner-healthcheck.sh
 
 # ============================================================================
 # Stage 2b: AWS Lambda MicroVM container base image

@@ -131,6 +131,7 @@ RUN apt-install \
     libprotobuf32 \
     libffi8 \
     ca-certificates \
+    curl \
     && libffi=$(find /usr/lib -name 'libffi.so.8' -print -quit) \
     && { [ -n "$libffi" ] || { echo "libffi.so.8 not found" >&2; exit 1; }; } \
     && ln -sf "$libffi" "${libffi%.so.8}.so.6"
@@ -155,7 +156,10 @@ RUN bun install --frozen-lockfile --production
 COPY --from=sandbox-builder /app/.build ./.build
 COPY api/config ./config
 COPY api/src/entrypoint.sh ./entrypoint.sh
-RUN chmod +x ./entrypoint.sh
+# Direct NsJail chroots into this stage, so its Kubernetes exec probes need
+# the healthcheck and HTTP client inside the sandbox rootfs.
+COPY docker/sandbox-runner-healthcheck.sh /usr/local/bin/sandbox-runner-healthcheck.sh
+RUN chmod +x ./entrypoint.sh /usr/local/bin/sandbox-runner-healthcheck.sh
 
 RUN mkdir -p /pkgs /tmp/sandbox
 
@@ -242,7 +246,11 @@ COPY --from=nsjail-builder /usr/local/bin/sandbox-rootfs-setup /sandbox-rootfs-s
 # --- Launcher entrypoint (DNS resolution + socat relay before VM boot) ---
 COPY launcher/entrypoint.sh /usr/local/bin/launcher-entrypoint.sh
 COPY docker/start-direct-sandbox.sh /usr/local/bin/start-direct-sandbox.sh
-RUN chmod +x /usr/local/bin/launcher-entrypoint.sh /usr/local/bin/start-direct-sandbox.sh
+COPY docker/sandbox-runner-healthcheck.sh /usr/local/bin/sandbox-runner-healthcheck.sh
+RUN chmod +x \
+    /usr/local/bin/launcher-entrypoint.sh \
+    /usr/local/bin/start-direct-sandbox.sh \
+    /usr/local/bin/sandbox-runner-healthcheck.sh
 
 # --- Worker ---
 WORKDIR /worker
