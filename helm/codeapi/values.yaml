@@ -28,6 +28,13 @@ hardenedSandboxMode: true
 # `stateful` selects isolated BullMQ queues.
 executionProfile: ""
 
+# Bridge control-plane credentials. Hardened API deployments require paired
+# bridge authentication because the bridge routes are always exposed.
+bridge:
+  authMode: paired
+  workerId: ""
+  token: ""
+
 # Python runtime requested by the API/worker and installed in the sandbox.
 # ScienceChat images are built with the same version.
 pythonRuntimeVersion: "3.12.12"

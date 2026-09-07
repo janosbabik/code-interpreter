@@ -6,6 +6,14 @@ pythonRuntimeVersion: '3.12.12'
 executionProfile: default
 hardenedSandboxMode: true
 
+# The hardened Code API exposes paired bridge routes even though this profile
+# executes jobs through the local HTTP/NsJail backend. No remote worker is
+# configured; this static ID exists only to satisfy that protected API boundary.
+bridge:
+    authMode: paired
+    workerId: sciencechat-nsjail-evaluation
+    token: REPLACE_WITH_32_BYTE_BRIDGE_TOKEN
+
 # Explicitly select the shared NFS-backed StorageClass for the Code Interpreter
 # package tree, Redis, and MinIO rather than relying on the cluster default.
 global:
@@ -138,6 +146,10 @@ redis:
 minio:
     enabled: true
     mode: standalone
+    # Code Interpreter uses MinIO's S3 API internally; do not deploy the
+    # optional Bitnami Console/Object Browser (its old image is unavailable).
+    console:
+        enabled: false
     auth:
         rootUser: sciencechat-codeapi
         rootPassword: REPLACE_WITH_MINIO_PASSWORD

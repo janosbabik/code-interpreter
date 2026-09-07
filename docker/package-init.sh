@@ -20,6 +20,9 @@ PYTHON_ALIAS="python${PYTHON_SITE_VERSION}"
 # below — that's inherent to installing unpinned packages, not specific to uv.
 PYTHON_PACKAGE_INSTALLER="${PYTHON_PACKAGE_INSTALLER:-uv}"
 UV_VERSION="${UV_VERSION:-0.11.26}"
+# Package caches and the NFS-backed /pkgs PVC are different filesystems.
+# Copying is deliberate: hardlinks cannot cross that boundary.
+export UV_LINK_MODE="${UV_LINK_MODE:-copy}"
 NODE_VERSION="${NODE_VERSION:-24.15.0}"
 BUN_VERSION="${BUN_VERSION:-1.3.14}"
 BASH_PACKAGE_VERSION="${BASH_PACKAGE_VERSION:-5.2.0}"

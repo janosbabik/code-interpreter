@@ -65,6 +65,15 @@ spec:
                   name: {{ include "codeapi.fullname" . }}-pairing-rollback
                   key: epoch
                   optional: true
+            - name: CODEAPI_BRIDGE_AUTH_MODE
+              value: {{ .Values.bridge.authMode | quote }}
+            - name: CODEAPI_BRIDGE_WORKER_ID
+              value: {{ .Values.bridge.workerId | quote }}
+            - name: CODEAPI_BRIDGE_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "codeapi.fullname" . }}-secrets
+                  key: codeapi-bridge-token
             # Service URLs
             - name: FILE_SERVER_URL
               value: "http://{{ include "codeapi.fullname" . }}-file-server:{{ .Values.fileServer.service.port }}"
