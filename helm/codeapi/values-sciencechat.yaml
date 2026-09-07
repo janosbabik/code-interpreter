@@ -6,6 +6,12 @@ pythonRuntimeVersion: '3.12.12'
 executionProfile: default
 hardenedSandboxMode: true
 
+# Explicitly select the shared NFS-backed StorageClass for the Code Interpreter
+# package tree, Redis, and MinIO rather than relying on the cluster default.
+global:
+    storageClass: nfs-storage
+    defaultStorageClass: nfs-storage
+
 internalServiceAuth:
     token: REPLACE_WITH_32_BYTE_INTERNAL_SERVICE_TOKEN
 
@@ -65,6 +71,7 @@ workerSandbox:
         source: pvc
         persistence:
             enabled: true
+            storageClass: nfs-storage
             size: 20Gi
         initJob:
             enabled: true
@@ -125,6 +132,7 @@ redis:
     master:
         persistence:
             enabled: true
+            storageClass: nfs-storage
             size: 2Gi
 
 minio:
@@ -135,6 +143,7 @@ minio:
         rootPassword: REPLACE_WITH_MINIO_PASSWORD
     persistence:
         enabled: true
+        storageClass: nfs-storage
         size: 20Gi
     defaultBuckets: codeapi-files
 
