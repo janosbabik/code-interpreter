@@ -30,8 +30,14 @@ egressGrant:
     ledgerTtlGraceSeconds: 300
 
 executionManifest:
-    privateKey: REPLACE_WITH_BASE64_DER_ED25519_PRIVATE_KEY
-    publicKey: REPLACE_WITH_BASE64_DER_ED25519_PUBLIC_KEY
+    # Bootstrap this Secret out-of-band for the POC. Argo manages the
+    # references but no private signing key is stored in Git or Application
+    # parameters.
+    existingSecret: sciencechat-execution-manifest
+    privateKeySecretKey: private-key
+    publicKeySecretKey: public-key
+    privateKey: ''
+    publicKey: ''
     ttlSeconds: 300
 
 api:

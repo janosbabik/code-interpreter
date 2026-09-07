@@ -39,9 +39,29 @@ helm install codeapi . \
   --set executionManifest.publicKey="$PUBLIC_KEY"
 ```
 
-For production, prefer external secrets management (Vault, AWS Secrets
-Manager, Sealed Secrets) or deploy-time `--set` over committing key material
-to a values file.
+For GitOps without a secret-management controller, bootstrap a namespace-local
+Secret out of band and commit only its name and key names:
+
+```bash
+kubectl -n code-interpreter create secret generic sciencechat-execution-manifest \
+  --from-literal=private-key="$PRIVATE_KEY" \
+  --from-literal=public-key="$PUBLIC_KEY"
+```
+
+```yaml
+executionManifest:
+  existingSecret: sciencechat-execution-manifest
+  privateKeySecretKey: private-key
+  publicKeySecretKey: public-key
+```
+
+The service-worker reads only the private-key entry and sandbox-runner reads
+only the public-key entry. Because Kubernetes does not update environment
+variables in running containers, restart both deployments after rotating the
+Secret. Argo manages the references but intentionally does not own this
+bootstrap Secret. For production, prefer external secrets management (Vault,
+AWS Secrets Manager, SOPS, or Sealed Secrets). Never commit the private key or
+put it in Argo CD Helm parameters.
 
 `values-local.yaml` carries a **test-only keypair** for minikube local dev. It
 is publicly known (the same keypair is hardcoded in the unit tests), so never

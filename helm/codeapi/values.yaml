@@ -68,6 +68,13 @@ egressGrant:
 # workerSandbox.enabled=true and these are unset. For minikube local dev,
 # values-local.yaml ships a test-only keypair.
 executionManifest:
+  # For GitOps deployments, pre-create a namespace-scoped Secret and set its
+  # name here. The chart then reads both keys without rendering their values.
+  existingSecret: ""
+  privateKeySecretKey: private-key
+  publicKeySecretKey: public-key
+  # Inline values remain available for local Helm installs. Do not commit a
+  # real private key or expose it through Argo CD Helm parameters.
   privateKey: ""
   publicKey: ""
   ttlSeconds: 300
