@@ -233,6 +233,9 @@ workerSandbox:
   sandboxRunner:
     # Defaults to workerSandbox.replicaCount when unset.
     replicaCount: null
+    # Kubernetes 1.30+ supports the structured AppArmor field. Disable this on
+    # older API servers; direct NsJail still uses the legacy pod annotation.
+    appArmorProfileFieldEnabled: true
     # Restart a sandbox-runner before launcher/VMM host-side fd retention can
     # exhaust the process file descriptor limit. Set 0 to disable.
     fdLivenessLimit: 40000

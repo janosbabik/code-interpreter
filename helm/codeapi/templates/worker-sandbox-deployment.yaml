@@ -381,9 +381,12 @@ spec:
             # Direct NsJail must create a private mount namespace and change
             # root mount propagation before it enters its inner jail. The
             # Kubernetes RuntimeDefault AppArmor profile denies that mount
-            # operation even when SYS_ADMIN is present.
+            # operation even when SYS_ADMIN is present. Older API servers use
+            # the equivalent pod annotation rendered above and prune this field.
+            {{- if .Values.workerSandbox.sandboxRunner.appArmorProfileFieldEnabled }}
             appArmorProfile:
               type: Unconfined
+            {{- end }}
             {{- if and .Values.workerSandbox.seccomp .Values.workerSandbox.seccomp.enabled }}
             seccompProfile:
               type: Localhost

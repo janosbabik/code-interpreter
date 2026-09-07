@@ -79,6 +79,10 @@ workerSandbox:
         tag: sciencechat-v0.2.2
         pullPolicy: IfNotPresent
     kvmEnabled: false
+    sandboxRunner:
+        # This cluster predates the structured appArmorProfile API field. The
+        # chart's legacy per-container annotation supplies the same profile.
+        appArmorProfileFieldEnabled: false
     packages:
         # Direct NsJail cannot use the baked microVM package root. The matching
         # package-init image prepares this read-only persistent package tree.
