@@ -243,6 +243,13 @@ spec:
     metadata:
       labels:
         {{- include "codeapi.sandboxRunner.selectorLabels" . | nindent 8 }}
+      {{- if not .Values.workerSandbox.kvmEnabled }}
+      annotations:
+        # Kubernetes releases predating the GA appArmorProfile field require
+        # this per-container annotation. Keep it alongside the GA field below
+        # so the evaluation-only direct-NsJail profile works across clusters.
+        container.apparmor.security.beta.kubernetes.io/sandbox-runner: unconfined
+      {{- end }}
     spec:
       {{- if or .Values.workerSandbox.sandboxServiceAccount.create .Values.workerSandbox.sandboxServiceAccount.name }}
       serviceAccountName: {{ $sandboxRunnerServiceAccount }}
