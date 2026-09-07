@@ -38,7 +38,7 @@ api:
     replicaCount: 1
     image:
         repository: ghcr.io/janosbabik/sciencechat-codeapi-api
-        tag: sciencechat-v0.2.0
+        tag: sciencechat-v0.2.1
         pullPolicy: IfNotPresent
     extraEnv:
         - name: LOCAL_MODE
@@ -66,11 +66,11 @@ workerSandbox:
     replicaCount: 1
     workerImage:
         repository: ghcr.io/janosbabik/sciencechat-codeapi-worker
-        tag: sciencechat-v0.2.0
+        tag: sciencechat-v0.2.1
         pullPolicy: IfNotPresent
     sandboxImage:
         repository: ghcr.io/janosbabik/sciencechat-codeapi-sandbox-nsjail
-        tag: sciencechat-v0.2.0
+        tag: sciencechat-v0.2.1
         pullPolicy: IfNotPresent
     kvmEnabled: false
     packages:
@@ -85,7 +85,7 @@ workerSandbox:
             enabled: true
             image:
                 repository: ghcr.io/janosbabik/sciencechat-codeapi-package-init
-                tag: sciencechat-v0.2.0
+                tag: sciencechat-v0.2.1
                 pullPolicy: IfNotPresent
             pythonVersion: '3.12.12'
     config:
@@ -113,7 +113,7 @@ workerSandbox:
 toolCallServer:
     image:
         repository: ghcr.io/janosbabik/sciencechat-codeapi-tool-call-server
-        tag: sciencechat-v0.2.0
+        tag: sciencechat-v0.2.1
         pullPolicy: IfNotPresent
     config:
         requestTimeout: 300000
@@ -122,13 +122,13 @@ toolCallServer:
 fileServer:
     image:
         repository: ghcr.io/janosbabik/sciencechat-codeapi-file-server
-        tag: sciencechat-v0.2.0
+        tag: sciencechat-v0.2.1
         pullPolicy: IfNotPresent
 
 egressGateway:
     image:
         repository: ghcr.io/janosbabik/sciencechat-codeapi-egress-gateway
-        tag: sciencechat-v0.2.0
+        tag: sciencechat-v0.2.1
         pullPolicy: IfNotPresent
 
 redis:
@@ -146,6 +146,17 @@ redis:
 minio:
     enabled: true
     mode: standalone
+    # The vendored Bitnami chart pins images removed from bitnami/minio.
+    # Keep its compatible server/client versions, sourced from Bitnami's
+    # legacy registry, until the chart dependency is upgraded deliberately.
+    image:
+        registry: docker.io
+        repository: bitnamilegacy/minio
+        tag: 2025.7.23-debian-12-r3
+    clientImage:
+        registry: docker.io
+        repository: bitnamilegacy/minio-client
+        tag: 2025.7.21-debian-12-r2
     # Code Interpreter uses MinIO's S3 API internally; do not deploy the
     # optional Bitnami Console/Object Browser (its old image is unavailable).
     console:
